@@ -1,2 +1,2 @@
 # Base-de-datos-I
-Repo para guardar SQL de clases
+Aura o Laura
