@@ -1,2 +1,2 @@
 # Base-de-datos-I
-Repo para guardar SQL 
+Repo para guardar SQL de clases
