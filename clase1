@@ -1,0 +1,98 @@
+USE LIBRERIA_2026
+
+REPASO DE SELECT
+
+Listar artículos vendidos en 2020, mostrar precio de venta, cliente que lo compró, vendedor que lo vendió, solo mostrar los artículos cuya descripción comience con las letras que van de la G a la P y los clientes viven en el B°Centro.
+
+SELECT A.descripcion AS 'Producto',
+	DF.pre_unitario AS 'Precio Unitario', --precio en ese momento (no actual)
+	C.nom_cliente + ' ' + C.ape_cliente AS 'Cliente',
+	V.nom_vendedor + ' ' + V.ape_vendedor AS 'Vendedor',
+	B2.barrio AS  'Barrio Vendedor'
+FROM facturas AS F
+	JOIN detalle_facturas AS DF ON DF.nro_factura = F.nro_factura
+	JOIN articulos AS A ON A.cod_articulo = DF.cod_articulo
+	JOIN clientes AS C ON F.cod_cliente = C.cod_cliente
+	JOIN vendedores AS V ON V.cod_vendedor = F.cod_vendedor
+	JOIN barrios AS B ON C.cod_barrio = B.cod_barrio
+	JOIN barrios AS B2 ON V.cod_barrio = B2.cod_barrio -- barrios de vendedores
+WHERE YEAR(F.fecha) = 2020
+	AND A.descripcion LIKE '[G-P]%'
+	AND B.barrio = 'CENTRO'
+	AND B2.barrio = 'CENTRO' -- consigna: y vendedor barrio centro
+	
+
+USE LIBRERIA_2026_BDI
+
+TEMA NUEVO: UNION
+Mostrar el resultado de 2 o mas tablas en una misma. Las mismas deben contar con: Misma cantidad de columnas y mismo tipo.
+
+SELECT cod_cliente AS 'Código', ape_cliente	 + ' ' + nom_cliente AS 'Nombre', 'Cliente' AS 'Tipo'
+FROM clientes
+UNION
+SELECT cod_vendedor, ape_vendedor + ' ' + nom_vendedor, 'Vendedor'
+FROM vendedores
+
+DESARROLLO ACTIVIDADES GUIA NRO 1
+
+4) Se quiere saber las direcciones (incluido el barrio) tanto de clientes como de vendedores. Para el caso de los vendedores, códigos entre 3 y 12. En ambos casos las direcciones deberán ser conocidas. Rotule como NOMBRE, DIRECCION, BARRIO, INTEGRANTE (en donde indicará si es cliente o vendedor). Ordenado por la primera y la última columna.
+
+SELECT C.cod_cliente AS 'CÓDIGO',
+	ape_cliente + ' ' + nom_cliente AS 'NOMBRE',
+	calle + ' ' + TRIM(STR(altura)) AS 'DIRECCIÓN',
+	B.barrio AS 'BARRIO',
+	'Cliente' AS 'INTEGRANTE'
+FROM clientes AS C
+	JOIN barrios AS B
+		ON B.cod_barrio = C.cod_barrio
+WHERE calle IS NOT NULL AND altura IS NOT NULL and barrio IS NOT NULL
+
+UNION
+
+SELECT V.cod_vendedor AS 'CÓDIGO',
+	ape_vendedor + ' ' + nom_vendedor AS 'NOMBRE',
+	calle + ' ' + TRIM(STR(altura)) AS 'DIRECCIÓN',
+	B.barrio AS 'BARRIO',
+	'Vendedor' AS 'INTEGRANTE'
+FROM vendedores AS V
+	JOIN barrios AS B
+		ON B.cod_barrio = V.cod_barrio
+WHERE cod_vendedor BETWEEN 3 AND 12
+	AND calle IS NOT NULL AND altura IS NOT NULL and barrio IS NOT NULL
+
+ORDER BY 1, 4 --Al utilizar ORDER BY hacemos referencia a las columnas mediante numeros.
+
+
+6) Listar todos los artículos que están a la venta cuyo precio unitario oscile entre 10 y 50; también se quieren listar los artículos que fueron comprados por los clientes cuyos apellidos comiencen con “M” o con “P”.
+
+SELECT descripcion AS 'Artículo',
+	pre_unitario AS 'Precio Unitario'
+FROM articulos
+WHERE pre_unitario BETWEEN 10 AND 50
+
+UNION
+
+SELECT A.descripcion,
+	A.pre_unitario
+FROM facturas AS F
+	JOIN detalle_facturas AS DF
+		ON F.nro_factura = DF.nro_factura
+	JOIN clientes AS C
+		ON F.cod_cliente = C.cod_cliente
+	JOIN articulos AS A
+		ON A.cod_articulo = DF.cod_articulo
+WHERE C.ape_cliente LIKE '[M, P]%'
+
+
+7)
+SELECT SUM(cantidad * pre_unitario) AS FACTURACION FROM  detalle_facturas D JOIN facturas F ON D.nro_factura = F.nro_factura
+WHERE YEAR(fecha) = YEAR(GETDATE()) - 1
+UNION
+SELECT SUM(cantidad * pre_unitario) FROM  detalle_facturas D JOIN facturas F ON D.nro_factura = F.nro_factura
+WHERE YEAR(fecha) = YEAR(GETDATE()) AND MONTH(fecha) = MONTH(GETDATE()) - 1
+UNION
+SELECT SUM(cantidad * pre_unitario) FROM detalle_facturas D JOIN facturas F ON D.nro_factura = F.nro_factura
+WHERE YEAR(fecha) = YEAR(GETDATE()) AND MONTH(fecha) = MONTH(GETDATE())
+UNION
+SELECT SUM(cantidad * pre_unitario) FROM detalle_facturas D JOIN facturas F ON D.nro_factura = F.nro_factura
+WHERE YEAR(fecha) = YEAR(GETDATE()) AND DAY(fecha) = DAY(GETDATE());
