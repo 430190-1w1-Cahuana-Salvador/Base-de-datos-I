@@ -1,0 +1,84 @@
+
+
+--Repaso consultas sumarias 
+
+SELECT COUNT(*) Clientes,
+COUNT(nro_tel) 'tienen telefono',
+COUNT([e-mail]) 
+FROM clientes;
+
+
+SELECT SUM(cantidad* pre_unitario) Total,
+COUNT(* ) 'Cantidad de detalles',
+COUNT(DISTINCT F.nro_factura) ,
+COUNT (DISTINCT D.nro_factura)
+FROM detalle_facturas D JOIN facturas F ON D.nro_factura = F.nro_factura
+WHERE YEAR(fecha) = 2020
+
+
+--A cuantos clientes le facturamos en el 2020
+SELECT COUNT(distinct cod_cliente) FROM facturas 
+WHERE YEAR(fecha) = 2020;
+
+
+--monto total facturado en el 2020 y el promedio de faturación
+SELECT SUM(cantidad * pre_unitario) Total,
+AVG(cantidad * pre_unitario) 'promedio por detalle',
+COUNT(*) 'cantidad de detalles',
+SUM(cantidad*pre_unitario) / COUNT(DISTINCT F.nro_factura) 'Prom.Xfactura'
+FROM facturas F JOIN detalle_facturas D ON F.nro_factura = d.nro_factura
+WHERE YEAR(fecha) = 2020;
+
+--Se quiere ver la facturacion del 2020 y en el mismo listado, pero en la última fila el total facturado
+SELECT STR(F.nro_factura) nro_factura,
+cantidad* pre_unitario SUBTOTAL
+FROM detalle_facturas D JOIN facturas F ON D.nro_factura = F.nro_factura
+WHERE YEAR(fecha) = 2020
+UNION
+SELECT 'total',
+SUM(pre_unitario*cantidad)
+FROM detalle_facturas D JOIN facturas F ON D.nro_factura = F.nro_factura
+WHERE YEAR(fecha) = 2020;
+
+
+--7)  Se quiere saber la cantidad de ventas que hizo el vendedor de código 3
+
+SELECT COUNT(*) 'Ventas-vendedor-codigo-3'
+FROM facturas
+WHERE cod_vendedor = 3;
+
+--8) ¿Cuál fue la fecha de la primera y última venta que se realizó en este negocio?
+
+SELECT MIN(FORMAT(fecha, 'dd/MM/yyyy')) 'primera venta',
+MAX(FORMAT(fecha, 'dd/MM/yyyy')) 'ultima venta'
+FROM facturas;
+
+
+--9) Mostrar la siguiente información respecto a la factura nro.: 450: cantidad
+--total de unidades vendidas, la cantidad de artículos diferentes vendidos y el importe total.
+
+SELECT '450' 'Factura' ,
+SUM(cantidad) 'TOTAL UNIDADES VENDIDAD',
+COUNT(distinct cod_articulo) 'ARTICULOS',
+SUM(cantidad * pre_unitario) 'IMPORTE TOTAL'
+FROM detalle_facturas 
+WHERE nro_factura = 450;
+
+
+
+
+
+
+--CONSULTAS AGRUPADAS
+
+--Facturación por año
+
+SELECT 
+YEAR(fecha)AÑO,
+SUM(cantidad * pre_unitario) 'TOTAL X AÑO'
+FROM facturas F JOIN detalle_facturas D ON  D.nro_factura = F.nro_factura
+GROUP BY YEAR(fecha)
+ORDER BY 1;
+
+
+
