@@ -469,13 +469,37 @@ HAVING SUM(DF.pre_unitario * DF.cantidad) BETWEEN 200 AND 600
 -- 9. ¿Cuáles son los vendedores cuyo promedio de facturación el mes pasado
 -- supera los $ 800?
 
-a
+SELECT V.cod_vendedor AS 'Código',
+	V.ape_vendedor + ' ' + V.nom_vendedor AS 'Vendedor',
+	SUM(DF.pre_unitario * DF.cantidad) / COUNT(DISTINCT F.nro_factura) AS 'Promedio de Facturación'
+FROM vendedores AS V
+	JOIN facturas AS F
+		ON V.cod_vendedor = F.cod_vendedor
+	JOIN detalle_facturas AS DF
+		ON F.nro_factura = DF.nro_factura
+WHERE DATEDIFF(MONTH, F.fecha, GETDATE()) = 1
+GROUP BY V.cod_vendedor, V.ape_vendedor + ' ' + V.nom_vendedor
+HAVING AVG(DF.pre_unitario * DF.cantidad) > 800
+ORDER BY 3
 
 -- 10.¿Cuánto le vendió cada vendedor a cada cliente el año pasado siempre
 -- que la cantidad de facturas emitidas (por cada vendedor a cada cliente)
 -- sea menor a 5?
 
-a
+SELECT V.ape_vendedor + ' ' + V.nom_vendedor AS 'Vendedor',
+	C.ape_cliente + ' ' + C.nom_cliente AS 'Cliente',
+	SUM(DF.pre_unitario * DF.cantidad) AS 'Importe'
+FROM facturas AS F
+	JOIN detalle_facturas AS DF
+		ON F.nro_factura = DF.nro_factura
+	JOIN vendedores AS V
+		ON F.cod_vendedor = V.cod_vendedor
+	JOIN clientes AS C
+		ON F.cod_cliente = C.cod_cliente
+WHERE YEAR(F.fecha) = YEAR(GETDATE()) - 1
+GROUP BY V.cod_vendedor, V.ape_vendedor + ' ' + V.nom_vendedor,
+	C.cod_cliente, C.ape_cliente + ' ' + C.nom_cliente
+HAVING COUNT(DISTINCT F.nro_factura) < 5
 
 -- Combinación de resultados de consulta. UNION ------------------------------
 
