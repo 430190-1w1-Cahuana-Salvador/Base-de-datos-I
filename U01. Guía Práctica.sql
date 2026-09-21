@@ -184,19 +184,14 @@ ORDER BY 2, 1
 -- en el detalle (cantidad de registros de detalles) y el Importe total de la
 -- facturación de este año.
 
--- TERMINAR TERMINAR TERMINAR TERMINAR TERMINAR TERMINAR TERMINAR TERMINAR
-
-SELECT F.nro_factura AS 'Factura',
-	SUM(DF.cantidad) AS 'Cantidad Total de Artículos Vendidos',
-	COUNT(*) AS 'Cantidad de Registros de Detalles'
+SELECT F.nro_factura AS [Factura],
+	SUM(DF.cantidad) AS [Cantidad Total de Artículos Vendidos],
+	COUNT(DF.nro_factura) AS [Cantidad de Ítems del Detalle],
+	SUM(DF.pre_unitario * DF.cantidad) AS [Importe total de la Facturación de este año]
 FROM facturas AS F
 	JOIN detalle_facturas AS DF
 		ON F.nro_factura = DF.nro_factura
 GROUP BY F.nro_factura
-
-SELECT * FROM detalle_facturas WHERE nro_factura = 1
-
--- TERMINAR TERMINAR TERMINAR TERMINAR TERMINAR TERMINAR TERMINAR TERMINAR
 
 -- 3. Se quiere saber en este negocio, cuánto se factura:
 -- a. Diariamente
