@@ -265,13 +265,12 @@ GROUP BY DAY(F.fecha)
 ORDER BY [Cantidad de Facturas Confeccionadas] DESC, Día
 
 -- 5. Se quiere saber la cantidad y el importe promedio vendido por fecha y
--- cliente, para códigos de vendedor superiores a 2. Ordene por fecha y
--- cliente.
+-- cliente, para códigos de vendedor superiores a 2. Ordene por fecha y cliente.
 
 SELECT F.fecha AS 'Fecha',
 	C.ape_cliente + ' ' + C.nom_cliente AS 'Cliente',
 	SUM(DF.cantidad) AS 'Cantidad',
-	AVG(DF.pre_unitario * DF.cantidad) AS 'Promedio Vendido'
+	SUM(DF.pre_unitario * DF.cantidad) / COUNT(DISTINCT DF.nro_factura) AS 'Promedio Vendido'
 FROM facturas AS F
 	JOIN detalle_facturas AS DF
 		ON F.nro_factura = DF.nro_factura
