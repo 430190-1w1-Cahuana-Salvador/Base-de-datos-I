@@ -198,6 +198,7 @@ GROUP BY F.nro_factura
 -- b. Mensualmente
 -- c. Anualmente
 
+-- 3.a. Facturado por cada día de cada mes de cada año
 SELECT DAY(F.fecha) AS 'Día',
 	MONTH(F.fecha) AS 'Mes',
 	YEAR(F.fecha) AS 'Año',
@@ -207,6 +208,7 @@ FROM facturas AS F
 		ON F.nro_factura = DF.nro_factura
 GROUP BY DAY(F.fecha), MONTH(F.fecha), YEAR(F.fecha)
 
+-- 3.a. Facturado por cada día del mes
 SELECT DAY(F.fecha) AS 'Día',
 	SUM(DF.pre_unitario * DF.cantidad) AS 'Facturación'
 FROM facturas AS F
@@ -215,6 +217,7 @@ FROM facturas AS F
 GROUP BY DAY(F.fecha)
 ORDER BY 1
 
+-- 3.b. Facturado por cada mes de cada año
 SELECT YEAR(F.fecha) AS 'Año',
 	MONTH(F.fecha) AS 'Mes',
 	SUM(DF.pre_unitario * DF.cantidad) AS 'Facturación'
@@ -224,6 +227,16 @@ FROM facturas AS F
 GROUP BY YEAR(F.fecha), MONTH(F.fecha)
 ORDER BY 1, 2
 
+-- 3.b. Facturado por cada mes del año (1 al 31)
+SELECT MONTH(F.fecha) AS [Mes],
+	SUM(DF.pre_unitario * DF.cantidad) AS [Facturado]
+FROM facturas AS F
+	JOIN detalle_facturas AS DF
+		ON F.nro_factura = DF.nro_factura
+GROUP BY MONTH(F.fecha)
+ORDER BY Mes
+
+-- 3.c. Facturado por cada año
 SELECT YEAR(F.fecha) AS 'Año',
 	SUM(DF.pre_unitario * DF.cantidad) AS 'Facturación'
 FROM facturas AS F
@@ -242,6 +255,14 @@ FROM facturas
 WHERE MONTH(fecha) NOT IN (1, 7, 12)
 GROUP BY fecha
 ORDER BY 2 DESC, 1 DESC
+
+-- Agrupado por cada día del mes (del 1 al 31)
+SELECT DAY(F.fecha) AS [Día],
+	COUNT(F.nro_factura) AS [Cantidad de Facturas Confeccionadas]
+FROM facturas AS F
+WHERE MONTH(F.fecha) NOT IN (1, 7, 12)
+GROUP BY DAY(F.fecha)
+ORDER BY [Cantidad de Facturas Confeccionadas] DESC, Día
 
 -- 5. Se quiere saber la cantidad y el importe promedio vendido por fecha y
 -- cliente, para códigos de vendedor superiores a 2. Ordene por fecha y
