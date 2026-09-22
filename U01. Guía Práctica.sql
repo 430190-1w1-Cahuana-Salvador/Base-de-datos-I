@@ -359,7 +359,7 @@ ORDER BY C.ape_cliente + ' ' + C.nom_cliente,
 
 SELECT V.ape_vendedor + ' ' + V.nom_vendedor AS 'Vendedor',
 	C.ape_cliente + ' ' + C.nom_cliente AS 'Cliente',
-	COUNT(*) AS 'Cantidad de Facturas',
+	COUNT(DISTINCT F.nro_factura) AS 'Cantidad de Facturas',
 	MIN(F.fecha) AS 'Primera Factura',
 	MAX(F.fecha) AS 'Última Factura'
 FROM facturas AS F
