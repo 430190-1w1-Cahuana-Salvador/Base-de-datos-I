@@ -95,19 +95,65 @@ WHILE @cont < @max
 
 PRINT @suma
 
+
+--otra forma
+
+DECLARE @mayor int = 10, @menor int = 5, @suma int = 0, @aux int;
+SET @aux = @menor
+
+IF @mayor = @menor
+BEGIN
+	SELECT 'No pueden ser iguales'
+	RETURN
+END
+
+WHILE @menor < @mayor+1
+	BEGIN
+		SET @suma += @menor + @aux
+		SET @aux += 1
+		IF @aux = 11
+			BEGIN
+			 SET @menor += 1
+			 SET @aux = @menor
+			END
+	END
+
+PRINT @suma
 /*
 5. Mostrar nombre y precio de todos los artículos. Mostrar en una tercer columna la leyenda
 ‘Muy caro’ para precios mayores a $500, ‘Accesible’ para precios entre $300 y $500, ‘Barato’
 para precios entre $100 y $300 y ‘Regalado’ para precios menores a $100.
 */
+SELECT descripcion, pre_unitario,
+	iif(pre_unitario > 5000, 'Muy caro', iif(pre_unitario >=2000,'Accesible',iif(pre_unitario > 1000,'Barato','Regalado'))) mensaje
+FROM articulos
 
+
+--otra forma
+SELECT 
+	descripcion,
+	pre_unitario,
+	mensaje =
+	CASE 
+	WHEN pre_unitario > 5000 THEN 'Muy caro'
+	WHEN pre_unitario >= 2000 THEN 'Accesible'
+	WHEN pre_unitario >=1000 THEN 'Barato'
+	ELSE 'Regalado'
+
+	END
+
+FROM articulos
 
 
 /*
 6. Modificar el punto 2 reemplazando el mensaje de que es necesario reponer
 artículos por una excepción.
 */
-
+IF @precio > 500
+BEGIN	
+	DECLARE @pre VARCHAR(20) = CAST(@precio AS VARCHAR(20))
+	RAISERROR('El precio %s es mayor a 500',16,1,@pre)
+END
 
 
 -- Problema 3.2: Procedimientos Almacenados --
